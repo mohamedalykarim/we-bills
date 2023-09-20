@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,12 +25,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import dagger.hilt.android.AndroidEntryPoint
 import mohalim.billing.we.R
 
@@ -37,9 +45,13 @@ import mohalim.billing.we.R
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MainActivityUI(supportFragmentManager)
         }
+
+        MobileAds.initialize(this) {}
+
     }
 }
 
@@ -207,6 +219,10 @@ fun Buttons(supportFragmentManager: FragmentManager) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        AdvertBannerView()
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         /** Get new number button **/
         OutlinedButton(modifier = Modifier
             .fillMaxWidth()
@@ -248,6 +264,36 @@ fun Buttons(supportFragmentManager: FragmentManager) {
     }
 
 
+}
+
+
+@Composable
+fun AdvertBannerView(modifier: Modifier = Modifier) {
+    val isInEditMode = LocalInspectionMode.current
+    if (isInEditMode) {
+        Text(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(Color.Red)
+                .padding(horizontal = 2.dp, vertical = 6.dp),
+            textAlign = TextAlign.Center,
+            color = Color.White,
+            text = "Advert Here",
+        )
+    } else {
+        AndroidView(
+            modifier = modifier.fillMaxWidth(),
+            factory = { context ->
+                val addView = AdView(context)
+                addView.setAdSize(AdSize.BANNER)
+                addView.apply {
+                    adUnitId = "ca-app-pub-5350581213670869/8633849860"
+                    loadAd(AdRequest.Builder().build())
+                }
+
+            }
+        )
+    }
 }
 
 

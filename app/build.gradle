@@ -9,7 +9,7 @@ android {
 
     signingConfigs {
         config {
-            storeFile file('G:\\Projects\\QuizApp\\psd\\key.jks')
+            storeFile file('E:\\Android\\projects\\we-bills\\psd\\key.jks')
             storePassword 'Rm654326987'
             keyAlias = 'mohalim'
             keyPassword '654326987'
@@ -22,8 +22,8 @@ android {
         applicationId "mohalim.billing.we"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 6
-        versionName "1.05"
+        versionCode 8
+        versionName "1.08"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
         multiDexEnabled true
@@ -81,9 +81,7 @@ dependencies {
     kapt "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0"
 
 
-    implementation 'com.google.android.gms:play-services-ads:22.3.0'
-    implementation 'com.google.firebase:firebase-ads:22.3.0'
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
+    implementation 'com.google.android.gms:play-services-ads:22.4.0'
 
 
     implementation 'com.android.support:multidex:1.0.3'
