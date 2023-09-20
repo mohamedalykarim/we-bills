@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 
 import com.google.android.gms.ads.AdRequest;
@@ -28,14 +29,13 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
 import mohalim.billing.we.core.model.Bill;
 import mohalim.billing.we.core.utils.AppExecutor;
 import mohalim.billing.we.databinding.FragmentLookUpByPhoneBinding;
 
 import static mohalim.billing.we.core.utils.Constants.BASE_URL;
 
-public class LookUpByPhoneFragment extends DaggerFragment {
+public class LookUpByPhoneFragment extends Fragment {
     FragmentLookUpByPhoneBinding binding;
     private boolean loading = true;
     private boolean countDownFinished;

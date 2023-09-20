@@ -13,13 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
 import mohalim.billing.we.databinding.FragmentLookUpByAccountBinding;
-import mohalim.billing.we.databinding.FragmentLookUpByPhoneBinding;
 
 import static mohalim.billing.we.core.utils.Constants.BASE_URL;
 
-public class LookUpByAccountFragment extends DaggerFragment {
+public class LookUpByAccountFragment extends Fragment {
     FragmentLookUpByAccountBinding binding;
     private boolean loading = true;
 

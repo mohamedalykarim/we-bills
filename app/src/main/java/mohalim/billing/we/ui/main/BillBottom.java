@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.w3c.dom.Text;
@@ -35,7 +34,6 @@ public class BillBottom extends BottomSheetDialogFragment {
 
     List<Bill> billList;
 
-    private InterstitialAd mInterstitialAd;
 
 
 
@@ -50,9 +48,6 @@ public class BillBottom extends BottomSheetDialogFragment {
         binding.setBalance(balance);
         binding.setIsZero(isZeroBills);
 
-        mInterstitialAd = new InterstitialAd(getContext());
-        mInterstitialAd.setAdUnitId("ca-app-pub-5350581213670869/5323847169");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
 
         new CountDownTimer(5000, 1000) {
@@ -63,13 +58,6 @@ public class BillBottom extends BottomSheetDialogFragment {
 
             @Override
             public void onFinish() {
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                    Log.d("TAG", "onFinish: loaded");
-
-                }else {
-                    Log.d("TAG", "onFinish: Not loaded");
-                }
             }
         }.start();
 

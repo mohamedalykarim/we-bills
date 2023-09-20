@@ -4,9 +4,8 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import dagger.android.support.DaggerFragment;
 
-public class SavedNumberFragment extends DaggerFragment {
+public class SavedNumberFragment extends Fragment {
 
     public static SavedNumberFragment newInstance() {
 

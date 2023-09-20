@@ -13,12 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
 import mohalim.billing.we.databinding.FragmentLookForNewNumberBinding;
 
 import static mohalim.billing.we.core.utils.Constants.BASE_URL;
 
-public class LookForNewNumberFragment extends DaggerFragment {
+public class LookForNewNumberFragment extends Fragment {
     private boolean loading = true;
 
     @Inject

@@ -15,8 +15,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import javax.inject.Inject;
 
-import dagger.android.AndroidInjection;
-import dagger.android.support.DaggerAppCompatActivity;
 import mohalim.billing.we.R;
 import mohalim.billing.we.databinding.ActivityMainBinding;
 import mohalim.billing.we.databinding.TabCustomItemBinding;
@@ -24,7 +22,7 @@ import mohalim.billing.we.databinding.TabCustomItemBinding;
 import static mohalim.billing.we.core.utils.Constants.BASE_URL;
 
 
-public class MainActivity extends DaggerAppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     @Inject
     WebView webView;

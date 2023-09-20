@@ -1,4 +1,9 @@
-apply plugin: 'com.android.application'
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+}
 
 android {
 
@@ -11,12 +16,13 @@ android {
         }
     }
 
-    compileSdkVersion 29
+    compileSdk 34
+
     defaultConfig {
         applicationId "mohalim.billing.we"
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 5
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 6
         versionName "1.05"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
@@ -31,43 +37,85 @@ android {
 
     buildFeatures {
         dataBinding true
+        compose true
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
+
     compileOptions {
-        sourceCompatibility = 1.7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        allWarningsAsErrors = false
+        freeCompilerArgs += [
+                '-opt-in=androidx.compose.material3.ExperimentalMaterial3Api'
+        ]
+    }
+
+
+    namespace 'mohalim.billing.we'
+
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10"
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'com.google.android.material:material:1.3.0'
-
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'org.jsoup:jsoup:1.12.1'
 
-
-    implementation 'com.google.android.gms:play-services-ads:19.8.0'
-    implementation 'com.google.firebase:firebase-ads:19.8.0'
-    implementation 'com.google.firebase:firebase-analytics:18.0.2'
-
+    implementation "com.google.dagger:hilt-android:2.48"
+    kapt "com.google.dagger:hilt-compiler:2.48"
+    kapt "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0"
 
 
+    implementation 'com.google.android.gms:play-services-ads:22.3.0'
+    implementation 'com.google.firebase:firebase-ads:22.3.0'
+    implementation 'com.google.firebase:firebase-analytics:21.3.0'
 
-    implementation 'com.google.dagger:dagger:2.25.4'
-    implementation 'com.google.dagger:dagger-android:2.25.4'
-    implementation 'com.google.dagger:dagger-android-support:2.25.4'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.25.4'
-    annotationProcessor 'com.google.dagger:dagger-android-processor:2.25.4'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'com.android.support:multidex:1.0.3'
 
+
+    def composeBom = platform('androidx.compose:compose-bom:2023.08.00')
+    implementation composeBom
+    androidTestImplementation composeBom
+    implementation 'androidx.compose.material3:material3'
+    // Android Studio Preview support
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    // UI Tests
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+
+    // Optional - Integration with activities
+    implementation 'androidx.activity:activity-compose:1.7.2'
+    // Optional - Integration with ViewModels
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    // Optional - Integration with LiveData
+    implementation 'androidx.compose.runtime:runtime-livedata'
+
+
 }
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
+}
+
 
 apply plugin: 'com.google.gms.google-services'
 
