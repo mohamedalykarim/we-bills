@@ -22,8 +22,8 @@ android {
         applicationId "mohalim.billing.we"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 9
-        versionName "1.09"
+        versionCode 10
+        versionName "1.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
         multiDexEnabled true

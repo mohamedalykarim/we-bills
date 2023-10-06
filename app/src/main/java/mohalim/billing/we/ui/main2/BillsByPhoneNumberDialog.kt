@@ -260,6 +260,8 @@ fun BillsByPhoneNumberUI(
                                 expanded = !expanded
                                 selectedItem = governerates[item] + " - " + phoneCodes[item]
                                 selectedCode = phoneCodes[item]
+
+
                             }) {
 
 

@@ -31,10 +31,12 @@ class ViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val selectedCode =
+        var selectedCode =
             intent?.getStringExtra(BillsByPhoneNumberDialog.CONSTANTS.STRING_PHONE_CODE)
         val selectedPhoneNumber =
             intent?.getStringExtra(BillsByPhoneNumberDialog.CONSTANTS.STRING_PHONE_NUMBER)
+
+
 
 
         object : CountDownTimer(5000, 1000) {
@@ -101,15 +103,18 @@ fun WebView(
                 )
 
 
+                var newselectedCode = selectedCode.toInt().toString()
+
+
                 webView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
 
                         webView.loadUrl(
-                            "javascript:document.getElementById(\"TxtAreaCode\").value = ${selectedCode}"
+                            "javascript:document.getElementById(\"TxtAreaCode\").value = $newselectedCode"
                         )
                         webView.loadUrl(
-                            "javascript:document.getElementById(\"TxtPhoneNumber\").value = ${selectedPhoneNumber}"
+                            "javascript:document.getElementById(\"TxtPhoneNumber\").value = $selectedPhoneNumber"
                         )
                         webView.loadUrl("javascript:(document.querySelectorAll(\"form#FrmInquiryByPhone div.form-inline div.form-group button.btn\"))[0].click()")
 
