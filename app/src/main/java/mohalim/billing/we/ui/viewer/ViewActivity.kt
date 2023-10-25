@@ -20,7 +20,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import dagger.hilt.android.AndroidEntryPoint
-import mohalim.billing.we.ui.main2.BillsByPhoneNumberDialog
+import mohalim.billing.we.ui.main2.WeLinesDialog
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,14 +29,13 @@ class ViewActivity : AppCompatActivity() {
     lateinit var webView: WebView
 
 
+    var state = ""
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var selectedCode =
-            intent?.getStringExtra(BillsByPhoneNumberDialog.CONSTANTS.STRING_PHONE_CODE)
-        val selectedPhoneNumber =
-            intent?.getStringExtra(BillsByPhoneNumberDialog.CONSTANTS.STRING_PHONE_NUMBER)
 
-
+        state = intent.getStringExtra("STATE").toString()
 
 
         object : CountDownTimer(5000, 1000) {
@@ -66,15 +65,22 @@ class ViewActivity : AppCompatActivity() {
 
 
         setContent {
-            if (selectedCode != null) {
-                if (selectedPhoneNumber != null) {
-                    WebView(
-                        webView = webView,
-                        selectedCode = selectedCode,
-                        selectedPhoneNumber = selectedPhoneNumber,
-                        context = applicationContext
-                    )
-                }
+            if (state == WeLinesDialog.CONSTANTS.STATE_REGISTER) {
+                WebViewToRegister(
+                    webView = webView,
+                    context = applicationContext
+                )
+            } else if (state == WeLinesDialog.CONSTANTS.STATE_ENTER) {
+                val email = intent.getStringExtra(WeLinesDialog.CONSTANTS.STRING_EMAIL).toString()
+                val password =
+                    intent.getStringExtra(WeLinesDialog.CONSTANTS.STRING_PASSWORD).toString()
+
+                WebViewToEnter(
+                    webView = webView,
+                    email = email,
+                    password = password,
+                    context = applicationContext
+                )
             }
 
         }
@@ -85,11 +91,11 @@ class ViewActivity : AppCompatActivity() {
 
 
 @Composable
-fun WebView(
+fun WebViewToEnter(
     modifier: Modifier = Modifier,
     webView: WebView,
-    selectedCode: String,
-    selectedPhoneNumber: String,
+    email: String,
+    password: String,
     context: Context,
 ) {
     var backEnabled by remember { mutableStateOf(false) }
@@ -103,20 +109,11 @@ fun WebView(
                 )
 
 
-                var newselectedCode = selectedCode.toInt().toString()
 
 
                 webView.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         super.onPageFinished(view, url)
-
-                        webView.loadUrl(
-                            "javascript:document.getElementById(\"TxtAreaCode\").value = $newselectedCode"
-                        )
-                        webView.loadUrl(
-                            "javascript:document.getElementById(\"TxtPhoneNumber\").value = $selectedPhoneNumber"
-                        )
-                        webView.loadUrl("javascript:(document.querySelectorAll(\"form#FrmInquiryByPhone div.form-inline div.form-group button.btn\"))[0].click()")
 
 
                     }
@@ -131,6 +128,47 @@ fun WebView(
     BackHandler(enabled = backEnabled) {
 
 
+        webView.goBack()
+    }
+}
+
+
+@Composable
+fun WebViewToRegister(
+    modifier: Modifier = Modifier,
+    webView: WebView,
+    context: Context,
+) {
+    var backEnabled by remember { mutableStateOf(false) }
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            webView.apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+
+                webView.loadUrl("https://billing.te.eg/ar-EG/MyTe/Register?")
+
+
+
+
+                webView.webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+
+
+                    }
+                }
+
+
+            }
+        }, update = {
+
+        })
+
+    BackHandler(enabled = backEnabled) {
         webView.goBack()
     }
 }

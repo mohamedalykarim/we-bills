@@ -98,6 +98,51 @@ fun Buttons(supportFragmentManager: FragmentManager) {
             .height(85.dp),
             shape = RoundedCornerShape(50.dp),
             onClick = {
+                WeLinesDialog().show(
+                    supportFragmentManager,
+                    WeLinesDialog.TAG
+                )
+            }) {
+
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .height(80.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.phone_number_icon),
+                        contentDescription = "Phone Icon",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(10.dp, 0.dp, 0.dp, 0.dp)
+                            .wrapContentHeight(Alignment.CenterVertically),
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        text = "إدارة الخطوط الارضية"
+                    )
+                }
+
+
+            }
+
+
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        /** Get bills by phone number button **/
+        OutlinedButton(modifier = Modifier
+            .fillMaxWidth()
+            .height(85.dp),
+            shape = RoundedCornerShape(50.dp),
+            onClick = {
                 BillsByPhoneNumberDialog().show(
                     supportFragmentManager,
                     BillsByPhoneNumberDialog.TAG
@@ -137,129 +182,8 @@ fun Buttons(supportFragmentManager: FragmentManager) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-
-        /** Get bills by Account number button **/
-        OutlinedButton(modifier = Modifier
-            .fillMaxWidth()
-            .height(85.dp),
-            shape = RoundedCornerShape(50.dp),
-            onClick = { /*TODO*/ }) {
-
-            Box(modifier = Modifier.fillMaxSize()) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .height(80.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.account_number_icon),
-                        contentDescription = "Phone Icon",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(10.dp, 0.dp, 0.dp, 0.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        text = "الاستعلام برقم الحساب"
-                    )
-                }
-
-
-            }
-
-
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-
-        /** Get new number button **/
-        OutlinedButton(modifier = Modifier
-            .fillMaxWidth()
-            .height(85.dp),
-            shape = RoundedCornerShape(50.dp),
-            onClick = { /*TODO*/ }) {
-
-            Box(modifier = Modifier.fillMaxSize()) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .height(80.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.phone_number),
-                        contentDescription = "Phone Icon",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(10.dp, 0.dp, 0.dp, 0.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        text = "استعلام عن الرقم الجديد"
-                    )
-                }
-
-
-            }
-
-
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
         AdvertBannerView()
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        /** Get new number button **/
-        OutlinedButton(modifier = Modifier
-            .fillMaxWidth()
-            .height(85.dp),
-            shape = RoundedCornerShape(50.dp),
-            onClick = { /*TODO*/ }) {
-
-            Box(modifier = Modifier.fillMaxSize()) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .height(80.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.contacts_icon),
-                        contentDescription = "Phone Icon",
-                        modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(10.dp, 0.dp, 0.dp, 0.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        text = "أرقامي"
-                    )
-                }
-
-
-            }
-
-
-        }
 
     }
 
