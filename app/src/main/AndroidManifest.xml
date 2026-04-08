@@ -5,7 +5,6 @@
     <uses-permission android:name="com.google.android.gms.permission.ca-app-pub-5350581213670869/8633849860" />
     <uses-permission android:name="com.google.android.gms.permission.ca-app-pub-5350581213670869/5323847169" />
 
-
     <application
         android:name=".core.di.App"
         android:allowBackup="true"
@@ -14,11 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".ui.new_main.NewMainActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5350581213670869~9620269108" />
-
 
         <activity
             android:name=".ui.viewer.ViewActivity"
@@ -28,21 +29,15 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.main2.MainActivity"
-            android:exported="true"></activity>
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5350581213670869~9620269108" />
-
+            android:exported="true" />
         <activity
             android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

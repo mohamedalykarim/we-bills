@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import mohalim.billing.we.R
 import mohalim.billing.we.ui.main2.MainActivity
+import mohalim.billing.we.ui.new_main.NewMainActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,15 +42,10 @@ class SplashActivity2 : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                val intent = Intent(this@SplashActivity2, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-                super.onPageFinished(view, url)
-            }
-        }
+        val intent = Intent(this@SplashActivity2, NewMainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+
 
         setContent {
             SplashActivityUI()
