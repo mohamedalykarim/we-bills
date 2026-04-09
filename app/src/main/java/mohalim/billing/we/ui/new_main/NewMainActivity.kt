@@ -121,55 +121,76 @@ fun LoginScreen() {
             val safeServiceType = JSONObject.quote(serviceType)
 
             val script = """
-        (function() {
-            const setNativeValue = (element, value) => {
-                const valueSetter = Object.getOwnPropertyDescriptor(element.__proto__, 'value').set;
-                valueSetter.call(element, value);
-                element.dispatchEvent(new Event('input', { bubbles: true }));
-                element.dispatchEvent(new Event('change', { bubbles: true }));
-            };
-
-            const subInput = document.getElementById('login_loginid_input_01');
-            const passInput = document.getElementById('login_password_input_01');
-
-            if (subInput) setNativeValue(subInput, $safeServiceNumber);
-            if (passInput) setNativeValue(passInput, $safePassword);
-            
-            const antSelect = document.querySelectorAll('.ant-select')[0];
-            
-            console.log("test",  antSelect); 
-            
-            if (antSelect) {
-             
-                antSelect.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                antSelect.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                antSelect.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                
-                console.log("test",  "ant select clicked"); 
-            }
-            
-            console.log($safeServiceType)
-            
-            if($safeServiceType === "Internet") {
-               const internet = document.getElementById('login_input_type_01_list_0');
-               console.log("test internet: ",  internet); 
-               if(internet){
-                   internet.click();
-                   console.log("test",  "internet clicked"); 
-               }
-            }else if($safeServiceType === "Landline"){
-                const landline = document.getElementById('login_input_type_01_list_1');
-                console.log("test landline: ",  landline); 
-                if(landline){
-                    landline.click();
-                    console.log("test",  "landline clicked"); 
-                }
-            }
-
-        })();
-        """.trimIndent()
-
+                            (function() {
+                                const setNativeValue = (element, value) => {
+                                    const valueSetter = Object.getOwnPropertyDescriptor(element.__proto__, 'value').set;
+                                    valueSetter.call(element, value);
+                                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                                    element.dispatchEvent(new Event('change', { bubbles: true }));
+                                };
+                    
+                                const subInput = document.getElementById('login_loginid_input_01');
+                                const passInput = document.getElementById('login_password_input_01');
+                    
+                                if (subInput) setNativeValue(subInput, $safeServiceNumber);
+                                if (passInput) setNativeValue(passInput, $safePassword);
+                                
+                                const antSelect = document.querySelectorAll('.ant-select')[0];
+                                
+                                
+                                 const children = antSelect.children;
+                    
+                                 for (let i = 0; i < children.length; i++) {                
+                                    if(i === 0){
+                                        children[i].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                        children[i].dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                        children[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));    
+                                    }
+                                    
+                                 }
+                            })();
+                            """.trimIndent()
             webViewInstance.evaluateJavascript(script, null)
+
+
+            val script2 = """
+                            (function() {
+                              setTimeout(() => {
+                              
+                                const rcVirtualListHolderInner = document.querySelectorAll('.rc-virtual-list-holder-inner')[0];
+                                console.log("ANT SELECT", rcVirtualListHolderInner);
+                                const options = rcVirtualListHolderInner.children;
+                                console.log("OPTIONS", options);
+                                for (let i = 0; i < options.length; i++) {
+                                  const option = options[i];
+                                  if($safeServiceType === "Internet" && i === 0){
+                                      option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                      option.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                      option.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                  }else if($safeServiceType === "Landline" && i === 1){
+                                      option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                      option.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                      option.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                  }
+                                  
+                                  console.log("CHILD " + " tagName", option.tagName);
+                                  console.log("CHILD " + " className", option.className);
+                                  console.log("CHILD " + " id", option.id);
+                                  console.log("CHILD " + " textContent", option.textContent);
+                                  console.log("CHILD " + " innerHTML", option.innerHTML);
+                                  console.log("CHILD " + " outerHTML", option.outerHTML);
+
+                                  
+                                  
+                                }
+                              
+                            
+                              }, 500);
+                            })();
+                            """.trimIndent()
+            webViewInstance.evaluateJavascript(script2, null)
+
+
         }
     }
 
@@ -247,7 +268,9 @@ fun LoginScreen() {
                                 readOnly = true,
                                 label = { Text("Service type") },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                             )
                             ExposedDropdownMenu(
@@ -289,61 +312,19 @@ fun LoginScreen() {
                         val script = """
                             (function() {
                 
-                                const setNativeValue = (element, value) => {
-                                    const valueSetter = Object.getOwnPropertyDescriptor(element.__proto__, 'value').set;
-                                    valueSetter.call(element, value);
-                                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                                };
-                
-                                const subInput = document.getElementById('login_loginid_input_01');
-                                const passInput = document.getElementById('login_password_input_01');
-                                const loginBtn = document.querySelector('.btn-login') || document.querySelector('button[type="submit"]');
-                
-                                if (subInput) setNativeValue(subInput, '${serviceNumber}');
-                                if (passInput) setNativeValue(passInput, '${password}');
-                
-                                function doLogin() {
-                                    if (loginBtn) {
-                                        setTimeout(() => loginBtn.click(), 300);
-                                    }
-                                }
-                
-                                const typeInput = document.getElementById('login_input_type_01');
-                
-                                if (typeInput) {
-                                    const select = typeInput.closest('.ant-select');
-                
-                                    if (select) {
-                                        select.click();
-                
-                                        setTimeout(() => {
-                                            const options = document.querySelectorAll('.ant-select-item-option-content');
-                
-                                            let found = false;
-                
-                                            options.forEach(opt => {
-                                                if (opt.innerText.trim().toLowerCase() === '${serviceType}'.toLowerCase()) {
-                                                    opt.click();
-                                                    found = true;
-                                                }
-                                            });
-                
-                                            setTimeout(doLogin, 300);
-                
-                                        }, 300);
-                                    } else {
-                                        doLogin();
-                                    }
-                                } else {
-                                    doLogin();
-                                }
+                                const loginButton = document.getElementById('login-withecare');
+                                loginButton.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                loginButton.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                loginButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
                 
                             })();
                         """.trimIndent()
 
                         webViewInstance.evaluateJavascript(script, null)
                     },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     enabled = !isLoadingPage
                 ) {
