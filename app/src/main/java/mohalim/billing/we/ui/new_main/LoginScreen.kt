@@ -3,50 +3,99 @@ package mohalim.billing.we.ui.new_main
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.ViewGroup
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import org.json.JSONObject
+import org.jsoup.Jsoup
 
 @SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(viewModel: NewMainViewModel, webViewInstance: WebView, isLoadingPage : Boolean, onLoginSuccess: (String) -> Unit) {
+fun LoginScreen(
+    viewModel: NewMainViewModel,
+    webViewInstance: WebView,
+    isLoadingPage: Boolean,
+    onLoginSuccess: (String) -> Unit
+) {
     var serviceNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var serviceType by remember { mutableStateOf("Internet") }
     var expanded by remember { mutableStateOf(false) }
     var showWebViewDialog by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf("") }
 
 
+    val primaryColor = Color(0xFF4A148C)
+    val secondaryColor = Color(0xFF7B1FA2)
+    val surfaceColor = Color(0xFFF8F9FA)
 
     // Sync Compose state to WebView on every change
     LaunchedEffect(isLoadingPage, serviceNumber, password, serviceType) {
         if (!isLoadingPage) {
+            errorText = ""
             delay(400)
 
             val safeServiceNumber = JSONObject.quote(serviceNumber)
@@ -79,8 +128,11 @@ fun LoginScreen(viewModel: NewMainViewModel, webViewInstance: WebView, isLoading
                                         children[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));    
                                     }
                                  }
+                                 
+                                 
                             })();
                             """.trimIndent()
+
             webViewInstance.evaluateJavascript(script, null)
 
             val script2 = """
@@ -100,88 +152,169 @@ fun LoginScreen(viewModel: NewMainViewModel, webViewInstance: WebView, isLoading
                                       option.dispatchEvent(new MouseEvent('click', { bubbles: true }));
                                   }
                                 }
-                              }, 500);
+                              }, 300);
                             })();
                             """.trimIndent()
             webViewInstance.evaluateJavascript(script2, null)
+
+            webViewInstance.evaluateJavascript(
+                "(function() { return document.documentElement.outerHTML; })();",
+                { value ->
+                    var html: String = value
+                    // Clean escaped characters
+                    html = html.replace("\\u003C", "<")
+                        .replace("\\n", "")
+                        .replace("\\\"", "\"")
+
+                    val doc = Jsoup.parse(html)
+                    val error  = doc.getElementsByClass("ant-form-item-explain-error")
+                    if (!error.isEmpty()){
+                        Log.d("TAG", "" + error[0].text())
+                        errorText = error[0].text().toString()
+                    }
+
+                }
+            )
         }
     }
 
+    val isInputValid = serviceNumber.length >= 8 && password.isNotBlank()
     val showServiceType = serviceNumber.length >= 8
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(surfaceColor)
     ) {
-        // Header Section
+        // Gradient Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
+                .height(280.dp)
                 .background(
-                    Color(0xFF4A148C),
-                    shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Surface(
-                    modifier = Modifier.size(70.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text("we", fontSize = 38.sp, fontWeight = FontWeight.Black, color = Color(0xFF4A148C))
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Login to your account", color = Color.White, fontSize = 18.sp)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Main Login Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
-                
-                OutlinedTextField(
-                    value = serviceNumber,
-                    onValueChange = { serviceNumber = it },
-                    label = { Text("Service number") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            primaryColor,
+                            secondaryColor
+                        )
+                    ),
+                    shape = RoundedCornerShape(
+                        bottomStart = 48.dp,
+                        bottomEnd = 48.dp
+                    )
                 )
+        )
 
-                AnimatedVisibility(visible = showServiceType, enter = fadeIn(), exit = fadeOut()) {
-                    Column {
-                        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(50.dp))
+
+            // Brand Logo Section
+            Surface(
+                modifier = Modifier.size(90.dp),
+                shape = CircleShape,
+                color = Color.White,
+                shadowElevation = 12.dp
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        "we",
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.Black,
+                        color = primaryColor
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                "Welcome Back",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                "Login to manage your bills",
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(35.dp))
+
+            // Main Card
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
+                colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Service Number
+                    OutlinedTextField(
+                        value = serviceNumber,
+                        onValueChange = { serviceNumber = it },
+                        label = { Text("Service Number") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = primaryColor
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        singleLine = true
+                    )
+
+                   if (!errorText.isEmpty()){
+                       Text(
+                           text = errorText,
+                           color = Color.Red,
+                           fontSize = 14.sp,
+                       )
+                   }
+
+
+                    // Animated Service Type
+                    AnimatedVisibility(
+                        visible = showServiceType,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
                         ExposedDropdownMenuBox(
                             expanded = expanded,
-                            onExpandedChange = { expanded = !expanded },
-                            modifier = Modifier.fillMaxWidth()
+                            onExpandedChange = { expanded = !expanded }
                         ) {
                             OutlinedTextField(
                                 value = serviceType,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Service type") },
+                                label = { Text("Service Type") },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Person,
+                                        contentDescription = null,
+                                        tint = primaryColor
+                                    )
+                                },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                 modifier = Modifier
                                     .menuAnchor()
                                     .fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,
@@ -198,91 +331,127 @@ fun LoginScreen(viewModel: NewMainViewModel, webViewInstance: WebView, isLoading
                             }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    // Password
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = primaryColor
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        singleLine = true
+                    )
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    // Login Button
+                    Button(
+                        onClick = {
+                            val script = "document.getElementById('login-withecare')?.click();"
+                            webViewInstance.evaluateJavascript(script, null)
 
-                Button(
-                    onClick = {
-                        val script = """
-                            (function() {
-                                const loginButton = document.getElementById('login-withecare');
-                                loginButton.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                                loginButton.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                                loginButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                            })();
-                        """.trimIndent()
-                        webViewInstance.evaluateJavascript(script, null)
-                        
-                        // For testing purpose, we can simulate success
-                        // onLoginSuccess(serviceType) 
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoadingPage
-                ) {
-                    if (isLoadingPage) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text("LOGIN", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            // await 1 second
+                            Thread.sleep(1000)
+
+                            Log.d("TAG", "Login")
+
+
+                            webViewInstance.evaluateJavascript(
+                                """
+                                (function() { 
+                                    const notification = document.querySelector('.ant-notification-notice-description');
+                                    return notification ? notification.innerText : null;
+                                })();
+                                """.trimIndent()
+                            ) { value ->
+
+                                Log.d("TAG", "Result: $value")
+
+                                if (!value.isNullOrEmpty() && value != "null") {
+                                    errorText = value
+                                }
+                            }
+
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                        enabled = !isLoadingPage && isInputValid
+                    ) {
+                        if (isLoadingPage) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                "LOGIN",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextButton(
-                    onClick = { showWebViewDialog = true },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text("Show Debug WebView", color = Color(0xFF4A148C).copy(alpha = 0.7f))
-                }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            TextButton(onClick = { showWebViewDialog = true }) {
+                Text("Need Help? Open Debug Mode", color = primaryColor.copy(alpha = 0.7f))
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
         }
 
+        // WebView Management
         if (showWebViewDialog) {
-            Dialog(onDismissRequest = { showWebViewDialog = false }) {
+            Dialog(
+                onDismissRequest = { showWebViewDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.7f),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    tonalElevation = 8.dp
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color.White
                 ) {
                     Column {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp),
-                            contentAlignment = Alignment.TopEnd
+                                .padding(16.dp),
+                            contentAlignment = Alignment.CenterEnd
                         ) {
-                            TextButton(onClick = { showWebViewDialog = false }) {
-                                Text("Close")
+                            IconButton(onClick = { showWebViewDialog = false }) {
+                                Icon(Icons.Default.Close, contentDescription = "Close")
                             }
                         }
                         AndroidView(
                             factory = {
                                 (webViewInstance.parent as? ViewGroup)?.removeView(webViewInstance)
                                 webViewInstance
-                            },
-                            update = {},
-                            onRelease = { view ->
-                                (view.parent as? ViewGroup)?.removeView(view)
                             },
                             modifier = Modifier.fillMaxSize()
                         )
@@ -291,16 +460,10 @@ fun LoginScreen(viewModel: NewMainViewModel, webViewInstance: WebView, isLoading
             }
         } else {
             Box(modifier = Modifier.size(1.dp)) {
-                AndroidView(
-                    factory = {
-                        (webViewInstance.parent as? ViewGroup)?.removeView(webViewInstance)
-                        webViewInstance
-                    },
-                    update = {},
-                    onRelease = { view ->
-                        (view.parent as? ViewGroup)?.removeView(view)
-                    }
-                )
+                AndroidView(factory = {
+                    (webViewInstance.parent as? ViewGroup)?.removeView(webViewInstance)
+                    webViewInstance
+                })
             }
         }
     }
