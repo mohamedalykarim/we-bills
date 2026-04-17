@@ -1,6 +1,8 @@
 package mohalim.billing.we.ui.new_main
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
@@ -94,26 +96,39 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                             }
                         }
                     } else if (url.contains("accountoverview")) {
-                        Log.d("WebView", "Detected accountoverview, waiting for content...")
+                        viewModel.setCurrentScreen("Loading")
+                        Log.d("WebView", "Detected accountoverview, starting poll...")
                         pollForAccountOverview(view)
                     }
                 }
 
                 private fun pollForAccountOverview(view: WebView?) {
-                    view?.evaluateJavascript(
+                    if (view == null) return
+                    
+                    view.evaluateJavascript(
                         """
                         (function () {
-                            const items = document.querySelectorAll('.ant-layout-content');
-                            // Wait until the container is present and has rendered content
-                            if (items.length > 0 && items[0].innerHTML.trim().length > 100) {
-                                return Array.from(items).map(i => i.outerHTML).join('');
+                            const content = document.querySelector('.ant-layout-content');
+                            const phone = document.querySelector('span.ant-select-selection-item');
+                            const progress = document.querySelector('.ant-progress-circle');
+                            const planText = document.body.innerText.includes('Your Current Plan');
+                            const balanceText = document.body.innerText.includes('Current Balance');
+                            
+                            // ننتظر حتى تظهر العناصر ويكون لها محتوى نصي (مثل رقم الهاتف)
+                            if (content && phone && phone.innerText.trim().length > 0 && progress && planText) {
+                                return content.outerHTML;
                             }
                             return "PENDING";
                         })();
                         """.trimIndent()
                     ) { value ->
+                        Log.d("WebView", "Poll result: ${value?.take(50)}")
+                        
                         if (value == "\"PENDING\"" || value == "null" || value == null) {
-                            view?.postDelayed({ pollForAccountOverview(view) }, 1000)
+                            // استخدام Handler لضمان استمرار التكرار في الـ Main Looper
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                pollForAccountOverview(view)
+                            }, 2000)
                         } else {
                             val html = unescapeJsString(value)
                             Log.d("WebView", "Content rendered, length: ${html.length}")
@@ -130,8 +145,8 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                             val welcomeContainer = document.selectFirst("div.ant-col.ant-col-24")
                             val phoneServiceContainer = document.selectFirst("span.ant-select-selection-item")
                             val planContainer = document.selectFirst("div:contains(Your Current Plan)")
-                            val balanceContainer = document.selectFirst("span:contains(Current Balance)")
-                            val card = document.selectFirst("div:has(span:contains(Remaining))")
+                            
+                            val balanceLabel = document.getElementsContainingOwnText("Current Balance").firstOrNull()
 
                             welcome = welcomeContainer?.text() ?: ""
                             phoneService = phoneServiceContainer?.text() ?: ""
@@ -140,27 +155,43 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                                 plan = it.text().trim()
                             }
 
-                            balanceContainer?.parent()?.selectFirst("div[style*='font-size: 1.625rem']")?.let {
-                                balance = it.text().trim()
+                            balanceLabel?.parent()?.let { parent ->
+                                val balElement = parent.select("div").firstOrNull { 
+                                    val t = it.text().trim()
+                                    t.isNotEmpty() && t.replace(".", "").all { c -> c.isDigit() }
+                                }
+                                balance = balElement?.text()?.trim() ?: ""
                             }
 
-                            card?.let {
-                                val spans = it.select("span")
-                                val texts = spans.map { s -> s.text().trim() }
-                                val numbers = texts.filter { t -> t.toDoubleOrNull() != null }
+                            val activeSlide = document.selectFirst("div.slick-slide.slick-active") ?: document
 
-                                type = texts.firstOrNull { t ->
-                                    t.isNotBlank() && t != "Remaining" && t != "Used" && t.toDoubleOrNull() == null
-                                } ?: ""
+                            type = activeSlide.select("span.ant-progress-text span").lastOrNull { 
+                                it.text().isNotBlank() 
+                            }?.text()?.trim() ?: ""
 
-                                if (numbers.isNotEmpty()) remaining = numbers[0]
-                                if (numbers.size > 1) used = numbers[1]
-                            }
+                            val remainingLabel = activeSlide.selectFirst("span:contains(Remaining)")
+                            remaining = remainingLabel?.parent()?.select("span")?.firstOrNull { 
+                                it.text().trim().toDoubleOrNull() != null 
+                            }?.text()?.trim() ?: "0"
+
+                            val usedLabel = activeSlide.selectFirst("span:contains(Used)")
+                            used = usedLabel?.parent()?.select("span")?.firstOrNull { 
+                                it.text().trim().toDoubleOrNull() != null
+                            }?.text()?.trim() ?: "0"
 
                             Log.d("WebView", "Parsed: Welcome=$welcome, Phone=$phoneService, Plan=$plan, Bal=$balance, Type=$type, Rem=$remaining, Used=$used")
 
-                            val rFloat = remaining.toFloatOrNull() ?: 0f
-                            val uFloat = used.toFloatOrNull() ?: 0f
+                            // إذا كانت البيانات الأساسية مفقودة رغم وجود العناصر، استمر في المحاولة
+                            if (phoneService.isEmpty() || plan.isEmpty()) {
+                                Log.d("WebView", "Essential data missing, retrying...")
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    pollForAccountOverview(view)
+                                }, 2000)
+                                return@evaluateJavascript
+                            }
+
+                            val rFloat = remaining.replace(",", "").toFloatOrNull() ?: 0f
+                            val uFloat = used.replace(",", "").toFloatOrNull() ?: 0f
                             
                             viewModel.setInternetData(
                                 name = welcome,
@@ -223,10 +254,13 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                         viewModel.setCurrentScreen(serviceType)
                     }
                 )
-                "Internet" -> InternetHomeScreen(onLogout = {
+                "Internet" -> InternetHomeScreen(
+                    viewModel,
+                    onLogout = {
                     viewModel.setCurrentScreen("Login")
                 })
-                "Landline" -> LandlineHomeScreen(onLogout = {
+                "Landline" -> LandlineHomeScreen(viewModel,
+                    onLogout = {
                     viewModel.setCurrentScreen("Login")
                 })
             }

@@ -11,6 +11,8 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,21 +23,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun InternetHomeScreen(onLogout: () -> Unit) {
+fun InternetHomeScreen(viewModel : NewMainViewModel, onLogout: () -> Unit) {
     val primaryColor = Color(0xFF4A148C)
     val secondaryColor = Color(0xFF7B1FA2)
     val surfaceColor = Color(0xFFF8F9FA)
     val accentColor = Color(0xFF00BFA5)
 
     // Dummy Data (In a real app, these would come from a State or ViewModel)
-    val welcomeName = "User"
-    val phoneNumber = "0123456789"
-    val currentPlan = "WE Space 200GB"
-    val balance = "25.75 EGP"
-    val usedGB = 120
-    val totalGB = 200
-    val remainingGB = totalGB - usedGB
-    val percentage = remainingGB.toFloat() / totalGB.toFloat()
+    val welcomeName by viewModel.userName.collectAsState("")
+    val phoneNumber by viewModel.serviceNumber.collectAsState("")
+    val currentPlan by viewModel.currentPlan.collectAsState("")
+    val balance by viewModel.balance.collectAsState("0")
+    val totalGB by viewModel.totalGB.collectAsState("0")
+    val remainingGB by viewModel.remainingGB.collectAsState("0")
+    val percentage = remainingGB.toString().toFloat() / totalGB.toString().toFloat()
+    val usedGB = totalGB.toString().toFloat() - remainingGB.toString().toFloat()
+
 
     Box(
         modifier = Modifier
@@ -72,7 +75,7 @@ fun InternetHomeScreen(onLogout: () -> Unit) {
             ) {
                 Column {
                     Text(
-                        text = "Welcome $welcomeName",
+                        text = " $welcomeName",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
