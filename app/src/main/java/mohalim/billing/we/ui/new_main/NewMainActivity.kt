@@ -204,7 +204,7 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
 
                             if (type.contains("Internet", ignoreCase = true)) {
                                 viewModel.setCurrentScreen("Internet")
-                            } else if (type.contains("Landline", ignoreCase = true)) {
+                            } else if (type.contains("Minutes", ignoreCase = true)) {
                                 viewModel.setCurrentScreen("Landline")
                             }
                         }
