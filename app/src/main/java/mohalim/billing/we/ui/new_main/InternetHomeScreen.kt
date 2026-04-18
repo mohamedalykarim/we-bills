@@ -23,7 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun InternetHomeScreen(viewModel : NewMainViewModel, onLogout: () -> Unit) {
+fun InternetHomeScreen(
+    viewModel: NewMainViewModel,
+    onLogout: () -> Unit,
+    onGetUsernameAndPassword: () -> Unit
+) {
     val primaryColor = Color(0xFF4A148C)
     val secondaryColor = Color(0xFF7B1FA2)
     val surfaceColor = Color(0xFFF8F9FA)
@@ -179,7 +183,9 @@ fun InternetHomeScreen(viewModel : NewMainViewModel, onLogout: () -> Unit) {
 
             // Action Button
             Button(
-                onClick = { /* Handle get credentials */ },
+                onClick = {
+                    onGetUsernameAndPassword()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),

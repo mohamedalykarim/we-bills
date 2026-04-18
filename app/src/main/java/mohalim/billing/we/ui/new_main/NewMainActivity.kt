@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import mohalim.billing.we.core.utils.Utils
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 
 class NewMainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,12 +170,14 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
 
                             val remainingLabel = activeSlide.selectFirst("span:contains(Remaining)")
                             remaining = remainingLabel?.parent()?.select("span")?.firstOrNull { 
-                                it.text().trim().toDoubleOrNull() != null 
+                                val text = it.text().trim().replace(",", "")
+                                text.toDoubleOrNull() != null
                             }?.text()?.trim() ?: "0"
 
                             val usedLabel = activeSlide.selectFirst("span:contains(Used)")
                             used = usedLabel?.parent()?.select("span")?.firstOrNull { 
-                                it.text().trim().toDoubleOrNull() != null
+                                val text = it.text().trim().replace(",", "")
+                                text.toDoubleOrNull() != null
                             }?.text()?.trim() ?: "0"
 
                             Log.d("WebView", "Parsed: Welcome=$welcome, Phone=$phoneService, Plan=$plan, Bal=$balance, Type=$type, Rem=$remaining, Used=$used")
@@ -256,6 +257,60 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                 )
                 "Internet" -> InternetHomeScreen(
                     viewModel,
+                    onGetUsernameAndPassword = {
+                        webViewInstance.evaluateJavascript(
+                            """
+                                (function() {
+                                    const smallIcon = document.getElementById('small-icon')
+                                    if(!smallIcon) return "error"
+                                    smallIcon.click();
+                                    
+                                    const getMenu = function(){
+                                        const menuItems = document.querySelectorAll('.ec_secondheaderview_smallMenu_sirDCv');
+                                        if(menuItems.length > 0){
+                                            for (let i = 0; i < menuItems.length; i++) {
+                                                const text = menuItems[i].textContent.trim();
+                                                if(text.includes('Plans & Services')){
+                                                    menuItems[i].click()
+                                                    goToUsernameAndPassword()
+                                                }
+                                            }
+                                        }else{
+                                            console.log("menuItems.length > 0 else")
+                                            setTimeout(getMenu, 3000);
+                                        }
+                                    }
+                                    
+                                    const goToUsernameAndPassword = function(){
+                                        const menuItems = document.querySelectorAll('a.ec_secondheaderview_smallMenu_sirDCv');
+                                        if(menuItems.length > 0){
+                                            console.log("goToUsernameAndPassword")
+                                            for (let i = 0; i < menuItems.length; i++) {
+                                                const text = menuItems[i].textContent.trim();
+                                                console.log("test", text)
+                                                if(text.includes('Username & Password')){
+                                                    console.log('everything is ok', menuItems[i].textContent)
+                                                    menuItems[i].click()
+                                                }
+                                            }
+
+                                        }else{
+                                            console.log("goToUsernameAndPassword else")
+                                            setTimeout(goToUsernameAndPassword, 3000);
+                                        }
+
+                                    }
+                                    getMenu();
+                                    
+                                    return "test";
+                                })();
+                            """
+                        ) { value ->
+
+
+                        }
+
+                    },
                     onLogout = {
                     viewModel.setCurrentScreen("Login")
                 })
