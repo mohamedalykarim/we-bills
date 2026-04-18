@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import mohalim.billing.we.core.utils.Utils
+import org.json.JSONObject
 import org.jsoup.Jsoup
 
 class NewMainActivity : ComponentActivity() {
@@ -80,7 +81,7 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                 }
 
                 private fun handleUrlChange(view: WebView?, url: String) {
-                    if (url == lastUrl && !url.contains("accountoverview")) return
+                    if (url == lastUrl && !url.contains("accountoverview") && !url.contains("usernamepassword")) return
                     lastUrl = url
 
                     if (url.contains("login")) {
@@ -98,6 +99,66 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                         viewModel.setCurrentScreen("Loading")
                         Log.d("WebView", "Detected accountoverview, starting poll...")
                         pollForAccountOverview(view)
+                    } else if (url.contains("usernamepassword")) {
+                        viewModel.setCurrentScreen("Loading")
+                        Log.d("WebView", "Detected usernamepassword, starting poll...")
+                        pollForUsernameAndPassword(view)
+                    }
+                }
+
+                private fun pollForUsernameAndPassword(view: WebView?) {
+                    if (view == null) return
+                    view.evaluateJavascript(
+                        """
+                        (function() {
+                            const usernameInput = document.getElementById('userinput');
+                            const passwordInput = document.getElementById('passwordinput');
+                            
+                            let username = "";
+                            let password = "";
+                            
+                            if (usernameInput) username = usernameInput.value;
+                            if (passwordInput) password = passwordInput.value;
+                            
+                            // fallback logic if IDs are missing but structure is present
+                            if (!username || !password) {
+                                const spans = document.querySelectorAll('span');
+                                for (let span of spans) {
+                                    if (span.textContent.trim() === 'Username') {
+                                        const input = span.parentElement.querySelector('input');
+                                        if (input) username = input.value;
+                                    }
+                                    if (span.textContent.trim() === 'Password') {
+                                        const input = span.parentElement.querySelector('input');
+                                        if (input) password = input.value;
+                                    }
+                                }
+                            }
+                            
+                            if (username && password) {
+                                return JSON.stringify({username, password});
+                            }
+                            return "PENDING";
+                        })();
+                        """.trimIndent()
+                    ) { value ->
+                        if (value == "\"PENDING\"" || value == "null" || value == null) {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                pollForUsernameAndPassword(view)
+                            }, 1000)
+                        } else {
+                            try {
+                                val jsonStr = unescapeJsString(value)
+                                val json = JSONObject(jsonStr)
+                                val u = json.getString("username")
+                                val p = json.getString("password")
+                                viewModel.setInternetCredentials(u, p)
+                                viewModel.setCurrentScreen("InternetUsernameAndPassword")
+                            } catch (e: Exception) {
+                                Log.e("WebView", "Error parsing credentials", e)
+                                viewModel.setIsFetchingCredentials(false)
+                            }
+                        }
                     }
                 }
 
@@ -258,51 +319,52 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                 "Internet" -> InternetHomeScreen(
                     viewModel,
                     onGetUsernameAndPassword = {
+                        viewModel.setIsFetchingCredentials(true)
                         webViewInstance.evaluateJavascript(
                             """
-                                (function() {
-                                    const smallIcon = document.getElementById('small-icon')
-                                    if(!smallIcon) return "error"
-                                    smallIcon.click();
+                                (async function() {
+                                    const openSidebar = function() {
+                                        const icon = document.getElementById('small-icon') || document.getElementById('user-icon') || document.getElementById('user');
+                                        if (icon){
+                                            icon.click();
+                                        }else{
+                                            openSidebar()
+                                        }
+                                    };
                                     
-                                    const getMenu = function(){
-                                        const menuItems = document.querySelectorAll('.ec_secondheaderview_smallMenu_sirDCv');
-                                        if(menuItems.length > 0){
-                                            for (let i = 0; i < menuItems.length; i++) {
-                                                const text = menuItems[i].textContent.trim();
-                                                if(text.includes('Plans & Services')){
-                                                    menuItems[i].click()
-                                                    goToUsernameAndPassword()
+                                    const clickPlansAndServices = function() {
+                                        const items = document.querySelectorAll('div.ec_secondheaderview_smallMenu_sirDCv');
+                                    
+                                        if (items.length > 0) {
+                                            for (let i = 0; i < items.length; i++) {
+                                                if (items[i].innerText.includes("Plans & Services")) {
+                                                    items[i].click();
+                                                    return;
                                                 }
                                             }
-                                        }else{
-                                            console.log("menuItems.length > 0 else")
-                                            setTimeout(getMenu, 3000);
                                         }
-                                    }
                                     
-                                    const goToUsernameAndPassword = function(){
-                                        const menuItems = document.querySelectorAll('a.ec_secondheaderview_smallMenu_sirDCv');
-                                        if(menuItems.length > 0){
-                                            console.log("goToUsernameAndPassword")
-                                            for (let i = 0; i < menuItems.length; i++) {
-                                                const text = menuItems[i].textContent.trim();
-                                                console.log("test", text)
-                                                if(text.includes('Username & Password')){
-                                                    console.log('everything is ok', menuItems[i].textContent)
-                                                    menuItems[i].click()
-                                                }
-                                            }
+                                        setTimeout(clickPlansAndServices, 2000);
+                                    };
+                                    
+                                    
 
-                                        }else{
-                                            console.log("goToUsernameAndPassword else")
-                                            setTimeout(goToUsernameAndPassword, 3000);
+                                    const findAndClickLink = function() {
+                                        const link = document.querySelector('a[href="#/usernamepassword"]');
+                                    
+                                        if (link) {
+                                            (link.querySelector('div') || link).click();
+                                            return;
                                         }
-
-                                    }
-                                    getMenu();
                                     
-                                    return "test";
+                                        setTimeout(findAndClickLink, 2000);
+                                    };
+
+                                    await openSidebar();
+                                    await clickPlansAndServices();
+                                    findAndClickLink()
+                                    
+                                    return "navigating";
                                 })();
                             """
                         ) { value ->
@@ -318,6 +380,12 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
                     onLogout = {
                     viewModel.setCurrentScreen("Login")
                 })
+                "InternetUsernameAndPassword" -> InternetUsernameAndPasswordScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        viewModel.setCurrentScreen("Internet")
+                    }
+                )
             }
         }
     }

@@ -44,6 +44,20 @@ class NewMainViewModel @Inject constructor() : ViewModel() {
     private val _totalGB = MutableStateFlow(0f)
     val totalGB = _totalGB.asStateFlow()
 
+    // Internet PPPoE Credentials
+    private val _internetUsername = MutableStateFlow("")
+    val internetUsername = _internetUsername.asStateFlow()
+
+    private val _internetPassword = MutableStateFlow("")
+    val internetPassword = _internetPassword.asStateFlow()
+
+    private val _isFetchingCredentials = MutableStateFlow(false)
+    val isFetchingCredentials = _isFetchingCredentials.asStateFlow()
+
+    fun setIsFetchingCredentials(fetching: Boolean) {
+        _isFetchingCredentials.value = fetching
+    }
+
     fun setInternetData(
         name: String,
         number: String,
@@ -58,5 +72,11 @@ class NewMainViewModel @Inject constructor() : ViewModel() {
         _balance.value = bal
         _remainingGB.value = remaining
         _totalGB.value = total
+    }
+
+    fun setInternetCredentials(username: String, password: String) {
+        _internetUsername.value = username
+        _internetPassword.value = password
+        _isFetchingCredentials.value = false
     }
 }

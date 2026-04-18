@@ -33,15 +33,17 @@ fun InternetHomeScreen(
     val surfaceColor = Color(0xFFF8F9FA)
     val accentColor = Color(0xFF00BFA5)
 
-    // Dummy Data (In a real app, these would come from a State or ViewModel)
+    // Account Data from ViewModel
     val welcomeName by viewModel.userName.collectAsState("")
     val phoneNumber by viewModel.serviceNumber.collectAsState("")
     val currentPlan by viewModel.currentPlan.collectAsState("")
     val balance by viewModel.balance.collectAsState("0")
-    val totalGB by viewModel.totalGB.collectAsState("0")
-    val remainingGB by viewModel.remainingGB.collectAsState("0")
-    val percentage = remainingGB.toString().toFloat() / totalGB.toString().toFloat()
-    val usedGB = totalGB.toString().toFloat() - remainingGB.toString().toFloat()
+    val totalGB by viewModel.totalGB.collectAsState(0f)
+    val remainingGB by viewModel.remainingGB.collectAsState(0f)
+    val isFetchingCredentials by viewModel.isFetchingCredentials.collectAsState(false)
+    
+    val percentage = if (totalGB > 0) remainingGB / totalGB else 0f
+    val usedGB = totalGB - remainingGB
 
 
     Box(
@@ -156,8 +158,8 @@ fun InternetHomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        UsageItem(label = "Used", value = "$usedGB GB", color = Color.Gray)
-                        UsageItem(label = "Total", value = "$totalGB GB", color = primaryColor)
+                        UsageItem(label = "Used", value = String.format("%.1f GB", usedGB), color = Color.Gray)
+                        UsageItem(label = "Total", value = String.format("%.1f GB", totalGB), color = primaryColor)
                     }
                 }
             }
@@ -189,13 +191,26 @@ fun InternetHomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
+                enabled = !isFetchingCredentials,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
-                Icon(Icons.Default.VpnKey, contentDescription = null)
+                if (isFetchingCredentials) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(Icons.Default.VpnKey, contentDescription = null)
+                }
                 Spacer(modifier = Modifier.width(10.dp))
-                Text("Get Username & Password", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    if (isFetchingCredentials) "Fetching..." else "Get Username & Password", 
+                    fontSize = 16.sp, 
+                    fontWeight = FontWeight.Bold
+                )
             }
             
             Spacer(modifier = Modifier.height(40.dp))
