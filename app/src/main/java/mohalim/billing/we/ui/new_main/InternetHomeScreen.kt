@@ -18,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mohalim.billing.we.R
 
 @Composable
 fun InternetHomeScreen(
@@ -41,6 +43,9 @@ fun InternetHomeScreen(
     val totalGB by viewModel.totalGB.collectAsState(0f)
     val remainingGB by viewModel.remainingGB.collectAsState(0f)
     val isFetchingCredentials by viewModel.isFetchingCredentials.collectAsState(false)
+    
+    val username by viewModel.internetUsername.collectAsState()
+    val password by viewModel.internetPassword.collectAsState()
     
     val percentage = if (totalGB > 0) remainingGB / totalGB else 0f
     val usedGB = totalGB - remainingGB
@@ -87,7 +92,7 @@ fun InternetHomeScreen(
                         color = Color.White
                     )
                     Text(
-                        text = "Home Internet",
+                        text = stringResource(R.string.home_internet),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.9f)
@@ -101,7 +106,7 @@ fun InternetHomeScreen(
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.Logout, 
-                        contentDescription = "Logout", 
+                        contentDescription = stringResource(R.string.logout), 
                         tint = Color.White,
                         modifier = Modifier.padding(10.dp)
                     )
@@ -122,7 +127,7 @@ fun InternetHomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Data Usage",
+                        text = stringResource(R.string.data_usage),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = primaryColor
@@ -145,7 +150,7 @@ fun InternetHomeScreen(
                                 color = primaryColor
                             )
                             Text(
-                                text = "Remaining",
+                                text = stringResource(R.string.remaining),
                                 fontSize = 14.sp,
                                 color = Color.Gray
                             )
@@ -158,8 +163,8 @@ fun InternetHomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        UsageItem(label = "Used", value = String.format("%.1f GB", usedGB), color = Color.Gray)
-                        UsageItem(label = "Total", value = String.format("%.1f GB", totalGB), color = primaryColor)
+                        UsageItem(label = stringResource(R.string.used), value = String.format("%.1f GB", usedGB), color = Color.Gray)
+                        UsageItem(label = stringResource(R.string.total), value = String.format("%.1f GB", totalGB), color = primaryColor)
                     }
                 }
             }
@@ -173,11 +178,11 @@ fun InternetHomeScreen(
                 colors = CardDefaults.elevatedCardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    InfoRow(icon = Icons.Default.Phone, label = "Service Number", value = phoneNumber)
+                    InfoRow(icon = Icons.Default.Phone, label = stringResource(R.string.service_number), value = phoneNumber)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFF5F5F5))
-                    InfoRow(icon = Icons.AutoMirrored.Filled.Assignment, label = "Current Plan", value = currentPlan)
+                    InfoRow(icon = Icons.AutoMirrored.Filled.Assignment, label = stringResource(R.string.current_plan), value = currentPlan)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFF5F5F5))
-                    InfoRow(icon = Icons.Default.AccountBalanceWallet, label = "Current Balance", value = balance)
+                    InfoRow(icon = Icons.Default.AccountBalanceWallet, label = stringResource(R.string.current_balance), value = balance)
                 }
             }
 
@@ -186,7 +191,11 @@ fun InternetHomeScreen(
             // Action Button
             Button(
                 onClick = {
-                    onGetUsernameAndPassword()
+                    if (username.isNotEmpty() && password.isNotEmpty()) {
+                        viewModel.setCurrentScreen("InternetUsernameAndPassword")
+                    } else {
+                        onGetUsernameAndPassword()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,7 +216,7 @@ fun InternetHomeScreen(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    if (isFetchingCredentials) "Fetching..." else "Get Username & Password", 
+                    if (isFetchingCredentials) stringResource(R.string.fetching) else stringResource(R.string.get_username_password),
                     fontSize = 16.sp, 
                     fontWeight = FontWeight.Bold
                 )

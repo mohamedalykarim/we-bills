@@ -56,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -67,6 +68,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
+import mohalim.billing.we.R
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
@@ -232,13 +234,13 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                "Welcome Back",
+                text = stringResource(R.string.welcome_back),
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
             Text(
-                "Login to manage your bills",
+                text = stringResource(R.string.login_to_manage),
                 fontSize = 14.sp,
                 color = Color.White.copy(alpha = 0.8f)
             )
@@ -250,7 +252,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(32.dp),
                 colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
             ) {
@@ -262,7 +264,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = serviceNumber,
                         onValueChange = { serviceNumber = it },
-                        label = { Text("Service Number") },
+                        label = { Text(stringResource(R.string.service_number)) },
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Phone,
@@ -275,11 +277,11 @@ fun LoginScreen(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(16.dp),
                         singleLine = true
                     )
 
-                   if (!errorText.isEmpty()){
+                   if (errorText.isNotEmpty()){
                        Text(
                            text = errorText,
                            color = Color.Red,
@@ -302,7 +304,7 @@ fun LoginScreen(
                                 value = serviceType,
                                 onValueChange = {},
                                 readOnly = true,
-                                label = { Text("Service Type") },
+                                label = { Text(stringResource(R.string.select_service_type)) },
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Person,
@@ -314,18 +316,18 @@ fun LoginScreen(
                                 modifier = Modifier
                                     .menuAnchor()
                                     .fillMaxWidth(),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+                                shape = RoundedCornerShape(16.dp)
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Internet") },
+                                    text = { Text(stringResource(R.string.internet)) },
                                     onClick = { serviceType = "Internet"; expanded = false }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Landline") },
+                                    text = { Text(stringResource(R.string.landline)) },
                                     onClick = { serviceType = "Landline"; expanded = false }
                                 )
                             }
@@ -336,7 +338,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(R.string.password)) },
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Lock,
@@ -358,7 +360,7 @@ fun LoginScreen(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(16.dp),
                         singleLine = true
                     )
 
@@ -396,7 +398,7 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                         enabled = !isLoadingPage && isInputValid
                     ) {
@@ -408,7 +410,7 @@ fun LoginScreen(
                             )
                         } else {
                             Text(
-                                "LOGIN",
+                                text = stringResource(R.string.login),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.sp
@@ -421,7 +423,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             TextButton(onClick = { showWebViewDialog = true }) {
-                Text("Need Help? Open Debug Mode", color = primaryColor.copy(alpha = 0.7f))
+                Text(stringResource(R.string.need_help_debug), color = primaryColor.copy(alpha = 0.7f))
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -445,7 +447,7 @@ fun LoginScreen(
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             IconButton(onClick = { showWebViewDialog = false }) {
-                                Icon(Icons.Default.Close, contentDescription = "Close")
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                             }
                         }
                         AndroidView(

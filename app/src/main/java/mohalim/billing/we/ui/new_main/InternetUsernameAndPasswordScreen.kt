@@ -19,12 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mohalim.billing.we.R
 
 @Composable
 fun InternetUsernameAndPasswordScreen(
@@ -34,7 +34,6 @@ fun InternetUsernameAndPasswordScreen(
     val primaryColor = Color(0xFF4A148C)
     val secondaryColor = Color(0xFF7B1FA2)
     val surfaceColor = Color(0xFFF8F9FA)
-    val accentColor = Color(0xFF00BFA5)
 
     val serviceNumber by viewModel.serviceNumber.collectAsState()
     val username by viewModel.internetUsername.collectAsState()
@@ -84,14 +83,14 @@ fun InternetUsernameAndPasswordScreen(
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             tint = Color.White
                         )
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "Router Credentials",
+                    text = stringResource(R.string.router_credentials),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -119,13 +118,13 @@ fun InternetUsernameAndPasswordScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Internet Service Settings",
+                        text = stringResource(R.string.internet_service_settings),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = primaryColor
                     )
                     Text(
-                        text = "Service Number: $serviceNumber",
+                        text = stringResource(R.string.service_number_label, serviceNumber),
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -134,12 +133,12 @@ fun InternetUsernameAndPasswordScreen(
 
                     // Username Section
                     CredentialItem(
-                        label = "PPPoE Username",
+                        label = stringResource(R.string.pppoe_username),
                         value = username,
                         icon = Icons.Default.AccountCircle,
                         onCopy = {
                             clipboardManager.setText(AnnotatedString(username))
-                            Toast.makeText(context, "Username copied", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.username_copied), Toast.LENGTH_SHORT).show()
                         }
                     )
 
@@ -148,7 +147,7 @@ fun InternetUsernameAndPasswordScreen(
                     // Password Section
                     var passwordVisible by remember { mutableStateOf(false) }
                     CredentialItem(
-                        label = "PPPoE Password",
+                        label = stringResource(R.string.pppoe_password),
                         value = password,
                         icon = Icons.Default.Lock,
                         isPassword = true,
@@ -156,7 +155,7 @@ fun InternetUsernameAndPasswordScreen(
                         onToggleVisibility = { passwordVisible = !passwordVisible },
                         onCopy = {
                             clipboardManager.setText(AnnotatedString(password))
-                            Toast.makeText(context, "Password copied", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.password_copied), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -184,14 +183,14 @@ fun InternetUsernameAndPasswordScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "How to use?",
+                            text = stringResource(R.string.how_to_use),
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             color = secondaryColor
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Enter these credentials into your router's WAN/PPPoE configuration page to establish your internet connection.",
+                            text = stringResource(R.string.how_to_use_desc),
                             fontSize = 14.sp,
                             color = Color.DarkGray,
                             lineHeight = 20.sp
@@ -261,7 +260,7 @@ fun CredentialItem(
                     IconButton(onClick = onToggleVisibility) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                            contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password),
                             tint = Color.Gray,
                             modifier = Modifier.size(20.dp)
                         )
@@ -271,7 +270,7 @@ fun CredentialItem(
                 IconButton(onClick = onCopy) {
                     Icon(
                         Icons.Default.ContentCopy,
-                        contentDescription = "Copy",
+                        contentDescription = stringResource(R.string.copy),
                         tint = Color(0xFF00BFA5),
                         modifier = Modifier.size(20.dp)
                     )

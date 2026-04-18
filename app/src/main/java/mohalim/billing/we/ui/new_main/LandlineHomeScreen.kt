@@ -18,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mohalim.billing.we.R
 
 @Composable
 fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
@@ -33,10 +35,11 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
     val phoneNumber by viewModel.serviceNumber.collectAsState("")
     val currentPlan by viewModel.currentPlan.collectAsState("")
     val balance by viewModel.balance.collectAsState("0")
-    val totalGB by viewModel.totalGB.collectAsState("0")
-    val remainingGB by viewModel.remainingGB.collectAsState("0")
-    val percentage = remainingGB.toString().toFloat() / totalGB.toString().toFloat()
-    val usedGB = totalGB.toString().toFloat() - remainingGB.toString().toFloat()
+    val totalGB by viewModel.totalGB.collectAsState(0f)
+    val remainingGB by viewModel.remainingGB.collectAsState(0f)
+    
+    val percentage = if (totalGB > 0) remainingGB / totalGB else 0f
+    val usedGB = totalGB - remainingGB
 
     Box(
         modifier = Modifier
@@ -79,7 +82,7 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                         color = Color.White
                     )
                     Text(
-                        text = "Landline",
+                        text = stringResource(R.string.landline),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.9f)
@@ -93,7 +96,7 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.Logout, 
-                        contentDescription = "Logout", 
+                        contentDescription = stringResource(R.string.logout), 
                         tint = Color.White,
                         modifier = Modifier.padding(10.dp)
                     )
@@ -114,7 +117,7 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Data Usage",
+                        text = stringResource(R.string.data_usage),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = primaryColor
@@ -137,7 +140,7 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                                 color = primaryColor
                             )
                             Text(
-                                text = "Remaining",
+                                text = stringResource(R.string.remaining),
                                 fontSize = 14.sp,
                                 color = Color.Gray
                             )
@@ -150,8 +153,8 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        UsageItem(label = "Used", value = "$usedGB GB", color = Color.Gray)
-                        UsageItem(label = "Total", value = "$totalGB GB", color = primaryColor)
+                        UsageItem(label = stringResource(R.string.used), value = String.format("%.1f GB", usedGB), color = Color.Gray)
+                        UsageItem(label = stringResource(R.string.total), value = String.format("%.1f GB", totalGB), color = primaryColor)
                     }
                 }
             }
@@ -165,11 +168,11 @@ fun LandlineHomeScreen(viewModel: NewMainViewModel, onLogout: () -> Unit) {
                 colors = CardDefaults.elevatedCardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    InfoRow(icon = Icons.Default.Phone, label = "Service Number", value = phoneNumber)
+                    InfoRow(icon = Icons.Default.Phone, label = stringResource(R.string.service_number), value = phoneNumber)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFF5F5F5))
-                    InfoRow(icon = Icons.AutoMirrored.Filled.Assignment, label = "Current Plan", value = currentPlan)
+                    InfoRow(icon = Icons.AutoMirrored.Filled.Assignment, label = stringResource(R.string.current_plan), value = currentPlan)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFF5F5F5))
-                    InfoRow(icon = Icons.Default.AccountBalanceWallet, label = "Current Balance", value = balance)
+                    InfoRow(icon = Icons.Default.AccountBalanceWallet, label = stringResource(R.string.current_balance), value = balance)
                 }
             }
             

@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,7 +80,7 @@ fun LoadingUI(webViewInstance : WebView) {
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
-            text = "فاتورة التليفون الارضي",
+            text = stringResource(R.string.app_name),
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontSize = 26.sp,
@@ -99,12 +100,12 @@ fun LoadingUI(webViewInstance : WebView) {
 
 
 
-        Text(text = "Loading ...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        Text(text = stringResource(R.string.loading), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 
         Spacer(modifier = Modifier.height(24.dp))
 
         TextButton(onClick = { showWebViewDialog = true }) {
-            Text("Need Help? Open Debug Mode", color = primaryColor.copy(alpha = 0.7f))
+            Text(stringResource(R.string.need_help_debug), color = primaryColor.copy(alpha = 0.7f))
         }
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -129,7 +130,7 @@ fun LoadingUI(webViewInstance : WebView) {
                         contentAlignment = Alignment.CenterEnd
                     ) {
                         IconButton(onClick = { showWebViewDialog = false }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                         }
                     }
                     AndroidView(

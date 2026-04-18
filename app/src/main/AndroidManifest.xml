@@ -26,16 +26,7 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5350581213670869~9620269108" />
 
-        <activity
-            android:name=".ui.viewer.ViewActivity"
-            android:exported="false" />
 
-        <activity
-            android:name=".ui.main2.MainActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
