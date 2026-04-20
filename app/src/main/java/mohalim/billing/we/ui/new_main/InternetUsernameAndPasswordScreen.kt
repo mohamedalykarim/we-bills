@@ -24,6 +24,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import mohalim.billing.we.R
 
 @Composable
@@ -163,6 +167,11 @@ fun InternetUsernameAndPasswordScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // AdMob Inline Banner
+            AdmobInlineBanner(adUnitId = "ca-app-pub-5350581213670869/5119744166")
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Instructions Card
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -202,6 +211,20 @@ fun InternetUsernameAndPasswordScreen(
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
+}
+
+@Composable
+fun AdmobInlineBanner(adUnitId: String) {
+    AndroidView(
+        modifier = Modifier.fillMaxWidth(),
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.MEDIUM_RECTANGLE)
+                this.adUnitId = adUnitId
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
 }
 
 @Composable

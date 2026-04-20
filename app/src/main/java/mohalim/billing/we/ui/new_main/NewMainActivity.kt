@@ -20,26 +20,63 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import mohalim.billing.we.core.utils.Utils
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
 class NewMainActivity : ComponentActivity() {
+    private var mInterstitialAd: InterstitialAd? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val viewModel : NewMainViewModel by viewModels()
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        loadInterstitialAd()
+
         setContent {
             WETheme {
                 NewMainActivityUI(viewModel)
             }
+        }
+    }
+
+    private fun loadInterstitialAd() {
+        val adRequest = AdRequest.Builder().build()
+        InterstitialAd.load(this, "ca-app-pub-5350581213670869/7666016453", adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d("AdMob", "Ad failed to load: ${adError.message}")
+                    mInterstitialAd = null
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d("AdMob", "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                }
+            })
+    }
+
+    fun showInterstitialAd() {
+        if (mInterstitialAd != null) {
+            mInterstitialAd?.show(this)
+            mInterstitialAd = null
+            loadInterstitialAd()
+        } else {
+            Log.d("AdMob", "The interstitial ad wasn't ready yet.")
+            loadInterstitialAd()
         }
     }
 }
@@ -50,6 +87,12 @@ fun NewMainActivityUI(viewModel: NewMainViewModel) {
 
     val currentScreen by viewModel.currentScreen.collectAsState("Loading")
     val isLoadingPage by viewModel.isLoadingPage.collectAsState(true)
+
+    LaunchedEffect(currentScreen) {
+        if (currentScreen == "Internet" || currentScreen == "Landline") {
+            (context as? NewMainActivity)?.showInterstitialAd()
+        }
+    }
 
     val webViewInstance = remember {
         WebView(context).apply {

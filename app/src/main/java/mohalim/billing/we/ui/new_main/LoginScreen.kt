@@ -67,6 +67,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kotlinx.coroutines.delay
 import mohalim.billing.we.R
 import org.json.JSONObject
@@ -429,6 +432,13 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(40.dp))
         }
 
+        // AdMob Banner
+        AdmobBanner(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        )
+
         // WebView Management
         if (showWebViewDialog) {
             Dialog(
@@ -469,4 +479,18 @@ fun LoginScreen(
             }
         }
     }
+}
+
+@Composable
+fun AdmobBanner(modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier.fillMaxWidth(),
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.BANNER)
+                adUnitId = "ca-app-pub-5350581213670869/1675323175"
+                loadAd(AdRequest.Builder().build())
+            }
+        }
+    )
 }
